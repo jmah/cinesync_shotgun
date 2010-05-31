@@ -105,15 +105,6 @@ CineSync.event_handler do |evt|
     end
   end
 
-
-  # Write to a temporary file
-  IllegalChars = /[^\w ~!@#\$%&\(\)_\-\+=\[\]\{\}',\.]/
-  name = playlist ? playlist['code'].gsub(IllegalChars, '_') : "Versions from Shotgun"
-  path = Dir.tmpdir + "/#{name}.csc"
-  File.open(path, 'w') {|f| f.puts session.to_xml }
-
-  esc_path = CGI.escape(path)
-  cinesync_command = "cinesync://file/merge?path=#{esc_path}"
-
-  CineSync::UI.open_url(cinesync_command)
+  name = playlist ? playlist['code'] : "Versions from Shotgun"
+  CineSync::Commands.open_session!(session, name)
 end
