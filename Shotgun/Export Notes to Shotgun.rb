@@ -75,7 +75,7 @@ def create_media_note(evt, media)
       frame_notes = "**Frame #{frame}:**"
       frame_notes << ' ' + ann.notes unless ann.notes.empty?
 
-      if !ann.drawing_objects.empty? and (path = evt.saved_frame_path(media, frame))
+      if (path = evt.saved_frame_path(media, frame))
         # Check if the frame is already uploaded, otherwise attach it
         existing_attach = existing_attachments.find {|att| att['name'] == path.basename.to_s }
         att_id = if existing_attach
