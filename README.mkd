@@ -1,0 +1,85 @@
+# cineSync&ndash;Shotgun Integration Scripts
+
+This is a package of scripts for [cineSync], which integrates it with the [Shotgun] production tracking system. When configured, you can create playlists from within the Shotgun interface and launch cineSync sessions with the click of a button. Other users can then join the cineSync review session from anywhere, over the internet. All drawings and notes created during the session are then exported back to Shotgun as notes, linked back to the related versions and shots, and addressed to the artist that owns them.
+
+  [cineSync]: http://www.cinesync.com/
+  [Shotgun]: http://www.shotgunsoftware.com/
+
+These scripts use the publicly available cineSync and Shotgun scripting APIs, and can also serve as an example of their use. They show a fairly comprehensive use of the cineSync scripting library, and are built on the [cineSync Ruby library].
+
+  [cineSync Ruby Library]: http://github.com/jmah/cinesync_ruby
+
+A description of each script is listed below, targeted towards other script developers.
+
+## Add Session Key to Shotgun Playlist
+
+This adds the current session key to the session's associated Shotgun playlist, as plain text in the _cineSync Session Key_ field, and as a clickable link into the _cineSync Session URL_ field. If the session is offline, this script does nothing. If the session has no associated Shotgun playlist user data, this script does nothing.
+
+The session key and session URL fields are customizable in the `shotgun_config.yaml` file. If a field is nil, it will be ignored by this script, allowing you to selectively disable use of different fields.
+
+
+## Remove Session Key from Shotgun Playlist
+
+This clears the session key from the associated Shotgun playlist. It works similarly to the _Add Session Key to Shotgun Playlist_ script, but also displays a message in Shotgun about the removal of the session key.
+
+
+## Open from Shotgun
+
+This script handles the _Open in cineSync_ request from Shotgun. In Shotgun, the ActionMenuItem is configured to open `cinesync://script/Open%20from%20Shotgun`; when this is triggered, several query parameters are added to the end indicating the current entity page, selected items, and more.
+
+This script examines the URL it was run with, and uses the Shotgun API extensively. It gathers a list of versions &mdash; either directly, if _Open in cineSync_ was selected on the Versions page, or by listing the contents of the selected Playlist. It constructs a session file using the cineSync Ruby library, and adds media files for each version, using the user data format described below. If the session was started from a playlist, it also adds user data to the session.
+
+The script displays status messages as Shotgun banners in the linked web browser as it reads entity information.
+
+
+## Show Version in Shotgun
+
+When called without extra arguments, this opens the version page of the current media file in Shotgun with the selected web browser. If the current media file has no Shotgun data, it does nothing.
+
+When called with the `--banner` argument, it displays name of the current file and links it to the version page as a message in the Shotgun interface. If the current file has no Shotgun user data, but the session does, it will display the message without a link.
+
+
+## Export Notes to Shotgun
+
+This is the largest and most involved script. The source file begins by defining several helper functions:
+
+- **`Shotgun#create_or_update_note`:** Given a note with the target attributes, this will search for an existing note with the same subject, project, author, and first link (but the body can be different). If it finds one, it updates it with the new body content, otherwise creates a new note entity.
+- **`create_session_notes`:** Creates or updates a note, linked to the playlist, containing session-level notes
+- **`create_media_notes`:** Given a media file with notes, this creates or updates a placeholder note, uploads all annotated frames as attachments to that note, and then sets to the note body to file-level notes and its frame-level notes
+
+The main event handling function of the script calls the above functions as necessary for each item that has Shotgun user data.
+
+
+## User data format
+
+These scripts store Shotgun data in cineSync's user data fields for both versions and playlists. The data is stored in JSON format. If a Playlist was opened, the session user data is set to:
+
+    {"shotgun":
+      { "url": "http://your-shotgun-url./",
+        "project_id":    11,
+        "playlist_id":   22,
+        "playlist_name": "My playlist" } }
+
+For a version that was opened from the Version page, the user data the media file is:
+
+    {"shotgun":
+      { "url": "http://your-shotgun-url./",
+        "project_id": 11,
+        "version_id": 33 } }
+
+For a version that was part of a playlist, the user data has an additional link to the playlist:
+
+    {"shotgun":
+      { "url": "http://your-shotgun-url./",
+        "project_id":    11,
+        "version_id":    33,
+        "playlist_id":   22,
+        "playlist_name": "My playlist" } }
+
+This extra playlist information is used to link the version's note to the playlist (in addition to the version's shot and task) when exported.
+
+### User data design tips
+
+**Robustness:** Once a session is started from Shotgun, it's possible for a participant (the owner or any guest) to run an _Open from Shotgun_ command from a different Shotgun instance. Since the IDs from a different Shotgun database wouldn't make sense in the context of the original, the URL of the Shotgun instance is stored with each media file. This allows the export script to determine which data is and isn't relevant to the current user's configuration. Try to design the user data such that each user data entry stands alone; if practical, it's good to include the session's relevant user data in each of the media files' user data.
+
+**Privacy:** Every session participant has a copy of the user data, which they can view by saving the session and opening it in a text editor; running a script; or using the script debug log (on the Mac version). If you need to store "private" data in the user data field, consider storing it externally (as a file or in a database) and making the user data field hold a link to it (path or database ID).
