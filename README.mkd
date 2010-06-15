@@ -25,7 +25,7 @@ This clears the session key from the associated Shotgun playlist. It works simil
 
 ## Open from Shotgun
 
-This script handles the _Open in cineSync_ request from Shotgun. In Shotgun, the ActionMenuItem is configured to open `cinesync://script/Open%20from%20Shotgun`; when this is triggered, several query parameters are added to the end indicating the current entity page, selected items, and more.
+This script handles the _Open in cineSync_ request from Shotgun. In Shotgun, the ActionMenuItem is configured to open `cinesync://script/Open%20from%20Shotgun`; when this is triggered, several query parameters are added to the end indicating the current entity page, selected items, and more. The script accesses its triggering URL through the `url` attribute on the EventHandler object.
 
 This script examines the URL it was run with, and uses the Shotgun API extensively. It gathers a list of versions &mdash; either directly, if _Open in cineSync_ was selected on the Versions page, or by listing the contents of the selected Playlist. It constructs a session file using the cineSync Ruby library, and adds media files for each version, using the user data format described below. If the session was started from a playlist, it also adds user data to the session.
 
