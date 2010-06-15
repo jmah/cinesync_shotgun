@@ -5,6 +5,32 @@ This is a package of scripts for [cineSync], which integrates it with the [Shotg
   [cineSync]: http://www.cinesync.com/
   [Shotgun]: http://www.shotgunsoftware.com/
 
+## Install and Setup
+
+The [cineSync&ndash;Shotgun Partner Page][1] has more details on the features.
+
+  [1]: http://www.cinesync.com/shotgun
+
+- Ensure your Shotgun instance has API access (contact Shotgun support for more details)
+- Create a "script" entity in Shotgun for cineSync to use
+- Enable the Playlist entity (through Admin &gt; Site Preferences &gt; Entities &gt; Playlist)
+
+By default, the scripts will look at three fields on a Version to try and find its QuickTime movie:
+
+1. Path to Movie (a "Text" field with a file path, such as `/mnt/server/file.mov` or `M:\file.mov`)
+2. Uploaded Movie (a "File/Link" field with an uploaded file, or with its URL pointing to a valid file with HTTP, FTP, or locally with `file://`)
+3. QT (a "File/Link" field, like Uploaded Movie, included in older project templates)
+
+When adding Versions from Shotgun, these fields are examined in order; if a field doesn't exist, the next field will be checked. The value found is used to locate the movie. You can change the order and name of these fields in the `shotgun_config.yaml` file, which is created once you've run the Shotgun configuration tool included in the installer. You need to supply the Field code, which you can view in Shotgun by selecting *Configure Field...* on the desired field.
+
+The `shotgun_config.yaml` file can be found at:
+
+- **Mac:** *(your home folder)*`/Library/Application Support/cineSync/Scripts/Shotgun`
+- **Windows:** `C:\Program Files\cineSync\Scripts\Shotgun`
+
+
+# For Developers
+
 These scripts use the publicly available cineSync and Shotgun scripting APIs, and can also serve as an example of their use. They show a fairly comprehensive use of the cineSync scripting library, and are built on the [cineSync Ruby library].
 
   [cineSync Ruby Library]: http://github.com/jmah/cinesync_ruby
