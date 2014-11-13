@@ -1,5 +1,9 @@
 # cineSync&ndash;Shotgun Integration Scripts
 
+## Notice: old and unsupported!
+
+**This repository is now deprecated and unsupported. Please instead use see the [downloads on the cineSync website](http://cinesync.com/downloads).**
+
 This is a package of scripts for [cineSync], which integrates it with the [Shotgun] production tracking system. When configured, you can create playlists from within the Shotgun interface and launch cineSync sessions with the click of a button. Other users can then join the cineSync review session from anywhere, over the internet. All drawings and notes created during the session are then exported back to Shotgun as notes, linked back to the related versions and shots, and addressed to the artist that owns them.
 
   [cineSync]: http://www.cinesync.com/
